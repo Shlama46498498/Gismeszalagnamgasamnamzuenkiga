@@ -1,4 +1,4 @@
-const WORDS_URL = "words.json"; 
+const WORDS_URL = "all_words.json"; 
 
 let globalDatabase = [];
 let currentWords = [];
