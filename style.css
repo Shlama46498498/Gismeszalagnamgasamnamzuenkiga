@@ -1,0 +1,19 @@
+body { font-family: 'Times New Roman', serif; background-color: #fcfaf2; color: #2c2c2c; padding: 20px; line-height: 1.6; }
+header { text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 20px; margin-bottom: 30px; }
+h1 { color: #8b0000; font-variant: small-caps; margin: 0; }
+.nav-buttons { margin-top: 15px; text-align: center; }
+nav button { background-color: #8b0000; color: white; border: none; padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border-radius: 4px; transition: 0.3s; font-family: inherit; }
+nav button:hover { background-color: #a31d1d; }
+.container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+@media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+input[type="text"] { width: 100%; padding: 12px; margin-bottom: 20px; box-sizing: border-box; border: 1px solid #ccc; font-size: 16px; font-family: inherit; }
+.vocab-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 500px; overflow-y: auto; padding-right: 10px; }
+.word-card { background: #fff; padding: 12px; border-left: 5px solid #8b0000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.word-card .original { font-weight: bold; font-size: 18px; color: #111; }
+.word-card .translit { font-style: italic; color: #666; font-size: 14px; }
+#quiz-container { background: #f3efe0; padding: 20px; border: 1px solid #d3cbb3; border-radius: 5px; position: sticky; top: 20px; }
+.quiz-option { display: block; width: 100%; padding: 12px; margin: 10px 0; background: #fff; border: 1px solid #ccc; cursor: pointer; text-align: left; font-size: 16px; font-family: inherit; transition: 0.2s; }
+.quiz-option:hover { background: #e2dbbe; }
+#next-btn { background-color: #2c2c2c; color: white; border: none; padding: 10px 20px; cursor: pointer; display: none; width: 100%; font-size: 16px; margin-top: 15px; }
+#next-btn:hover { background-color: #444; }
+.stats { margin-top: 15px; font-size: 14px; color: #555; font-weight: bold; }
