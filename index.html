@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancient Languages Archive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Ancient Languages Archive</h1>
+        <div class="nav-buttons">
+            <button onclick="switchLanguage('latin')">Latin (Goodwin)</button>
+            <button onclick="switchLanguage('greek')">Ancient Greek</button>
+            <button onclick="switchLanguage('akkadian')">Akkadian</button>
+            <button onclick="switchLanguage('aramaic')">Assyrian Aramaic</button>
+        </div>
+    </header>
+    <main class="container">
+        <section id="dictionary-section">
+            <h2 id="lang-title">Loading database...</h2>
+            <input type="text" id="search-bar" placeholder="Quick search for a word or translation..." oninput="filterWords()">
+            <div id="vocab-list" class="vocab-grid"></div>
+        </section>
+        <section id="quiz-section">
+            <div id="quiz-container">
+                <h2>Interactive Quiz</h2>
+                <p id="quiz-question">Please wait, downloading 12,000 words...</p>
+                <div id="quiz-options"></div>
+                <button id="next-btn" onclick="generateQuizQuestion()">Next Question</button>
+                <div class="stats" id="quiz-stats">Correct Answers: 0</div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
