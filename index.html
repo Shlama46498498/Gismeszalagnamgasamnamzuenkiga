@@ -3,35 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ancient Languages Archive</title>
+    <title>Ancient Languages Vocabulary</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Ancient Languages Archive</h1>
-        <div class="nav-buttons">
-            <button onclick="loadWords('latin')">Latin (Goodwin)</button>
-            <button onclick="loadWords('greek')">Ancient Greek</button>
-            <button onclick="loadWords('akkadian')">Akkadian</button>
-            <button onclick="loadWords('aramaic')">Assyrian Aramaic</button>
+    <div class="container">
+        <h1>Ancient Languages Vocabulary</h1>
+
+        <div class="language-selector">
+            <button data-language="latin">Latin</button>
+            <button data-language="greek">Greek</button>
+            <button data-language="akkadian">Akkadian</button>
+            <button data-language="aramaic">Aramaic</button>
+            <button data-language="all">All Languages</button>
         </div>
-    </header>
-    <main class="container">
-        <section id="dictionary-section">
-            <h2 id="lang-title">Loading database...</h2>
-            <input type="text" id="search-bar" placeholder="Quick search for a word or translation..." oninput="filterWords()">
-            <div id="vocab-list" class="vocab-grid"></div>
-        </section>
-        <section id="quiz-section">
-            <div id="quiz-container">
-                <h2>Interactive Quiz</h2>
-                <p id="quiz-question">Please wait, downloading words...</p>
-                <div id="quiz-options"></div>
-                <button id="next-btn" onclick="generateQuizQuestion()">Next Question</button>
-                <div class="stats" id="quiz-stats">Correct Answers: 0</div>
-            </div>
-        </section>
-    </main>
+
+        <div class="current-language" id="current-language">All Languages</div>
+
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Search words..." oninput="filterWords()">
+        </div>
+
+        <div class="loading" id="loading">Loading...</div>
+
+        <div class="words-container" id="words-container"></div>
+
+        <div class="quiz-section">
+            <h2>Quiz Mode</h2>
+            <button id="start-quiz">Start Quiz</button>
+            <div id="quiz-stats">Correct Answers: 0</div>
+            <div id="quiz-question"></div>
+            <div id="quiz-options"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
