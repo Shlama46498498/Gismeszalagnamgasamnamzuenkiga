@@ -3,37 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ancient Languages Vocabulary</title>
+    <title>Ancient Languages Library</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Ancient Languages Vocabulary</h1>
+        <header>
+            <h1>Ancient Languages Library</h1>
+            <p class="subtitle">A Vintage Academia Collection</p>
+        </header>
 
-        <div class="language-selector">
-            <button data-language="latin">Latin</button>
-            <button data-language="greek">Greek</button>
-            <button data-language="akkadian">Akkadian</button>
-            <button data-language="aramaic">Aramaic</button>
-            <button data-language="all">All Languages</button>
+        <div class="controls">
+            <div class="language-selector">
+                <label for="from-language">From:</label>
+                <select id="from-language">
+                    <option value="assyrian">Assyrian</option>
+                    <option value="english">English</option>
+                    <option value="latin">Latin</option>
+                </select>
+
+                <label for="to-language">To:</label>
+                <select id="to-language">
+                    <option value="akkadian">Akkadian</option>
+                    <option value="russian">Russian</option>
+                    <option value="greek">Greek</option>
+                    <option value="english">English</option>
+                </select>
+            </div>
+
+            <button id="load-btn">Load Dictionary</button>
         </div>
 
-        <div class="current-language" id="current-language">All Languages</div>
+        <div class="dictionary-container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search words...">
+                <button id="search-btn">Search</button>
+            </div>
 
-        <div class="search-container">
-            <input type="text" id="search-bar" placeholder="Search words..." oninput="filterWords()">
-        </div>
-
-        <div class="loading" id="loading">Loading...</div>
-
-        <div class="words-container" id="words-container"></div>
-
-        <div class="quiz-section">
-            <h2>Quiz Mode</h2>
-            <button id="start-quiz">Start Quiz</button>
-            <div id="quiz-stats">Correct Answers: 0</div>
-            <div id="quiz-question"></div>
-            <div id="quiz-options"></div>
+            <div id="word-list" class="word-list"></div>
         </div>
     </div>
 
