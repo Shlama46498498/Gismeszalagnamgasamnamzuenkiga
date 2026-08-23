@@ -1,242 +1,143 @@
-// Language files configuration
-const languageFiles = {
-    'latin': 'data/latin_english.json',
-    'greek': 'data/english_greek.json',
-    'akkadian': 'data/assyrian_akkadian.json',
-    'aramaic': 'data/assyrian_russian.json',
-    'all': 'all' // Special case for showing all words
+// Language data cache
+const languageData = {};
+
+// DOM elements
+const fromLanguageSelect = document.getElementById('from-language');
+const toLanguageSelect = document.getElementById('to-language');
+const loadBtn = document.getElementById('load-btn');
+const searchInput = document.getElementById('search-input');
+const searchBtn = document.getElementById('search-btn');
+const wordList = document.getElementById('word-list');
+
+// Language pairs mapping
+const languagePairs = {
+    'assyrian-akkadian': 'data/assyrian_akkadian.json',
+    'assyrian-russian': 'data/assyrian_russian.json',
+    'english-greek': 'data/english_greek.json',
+    'latin-english': 'data/latin_english.json'
 };
 
-// Current selected language
-let currentLanguage = 'all';
-let vocabularyData = [];
-let quizData = [];
-let correctAnswers = 0;
+// Load dictionary data
+async function loadDictionary() {
+    const fromLang = fromLanguageSelect.value;
+    const toLang = toLanguageSelect.value;
+    const key = `${fromLang}-${toLang}`;
 
-// Load words for the selected language
-async function loadWords(lang) {
-    currentLanguage = lang;
-    showLoading(true);
-
-    try {
-        if (lang === 'all') {
-            // Special handling for 'all' language
-            const allWords = [];
-            for (const [key, file] of Object.entries(languageFiles)) {
-                if (key === 'all') continue;
-                const response = await fetch(file);
-                if (!response.ok) {
-                    console.error(`Failed to load ${file}: ${response.status}`);
-                    continue;
-                }
-                const data = await response.json();
-                allWords.push(...data);
-            }
-            vocabularyData = allWords;
-            displayWords(allWords);
-        } else {
-            const response = await fetch(languageFiles[lang]);
-            if (!response.ok) throw new Error(`File not found (${response.status})`);
-
-            vocabularyData = await response.json();
-            displayWords(vocabularyData);
-        }
-        updateLanguageDisplay(lang);
-    } catch (error) {
-        console.error(`Error loading ${lang} words:`, error);
-        vocabularyData = [];
-        displayWords([]);
-    } finally {
-        showLoading(false);
-    }
-}
-
-// Display words in your existing format
-function displayWords(words) {
-    const container = document.getElementById('words-container');
-    container.innerHTML = '';
-
-    words.forEach(word => {
-        const wordElement = document.createElement('div');
-        wordElement.className = 'word-item';
-
-        // Different display based on language pair
-        if (currentLanguage === 'latin') {
-            wordElement.innerHTML = `
-                <div class="word">${word.latin}</div>
-                <div class="translation">${word.english}</div>
-            `;
-        }
-        else if (currentLanguage === 'greek') {
-            wordElement.innerHTML = `
-                <div class="word">${word.english}</div>
-                <div class="translation">${word.greek}</div>
-            `;
-        }
-        else if (currentLanguage === 'akkadian') {
-            wordElement.innerHTML = `
-                <div class="word">${word.assyrian}</div>
-                <div class="translation">${word.akkadian}</div>
-            `;
-        }
-        else if (currentLanguage === 'aramaic') {
-            wordElement.innerHTML = `
-                <div class="word">${word.assyrian}</div>
-                <div class="translation">${word.russian}</div>
-            `;
-        }
-        else { // 'all' language
-            wordElement.innerHTML = `
-                <div class="word">${word.latin || word.english || word.assyrian}</div>
-                <div class="translation">${word.english || word.greek || word.akkadian || word.russian}</div>
-            `;
-        }
-
-        container.appendChild(wordElement);
-    });
-}
-
-// Update language display
-function updateLanguageDisplay(lang) {
-    const display = document.getElementById('current-language');
-    const langNames = {
-        'latin': 'Latin-English',
-        'greek': 'English-Greek',
-        'akkadian': 'Assyrian-Akkadian',
-        'aramaic': 'Assyrian-Russian',
-        'all': 'All Languages'
-    };
-    display.textContent = langNames[lang] || lang;
-}
-
-// Helper function to show/hide loading
-function showLoading(show) {
-    const loader = document.getElementById('loading');
-    loader.style.display = show ? 'block' : 'none';
-}
-
-// Search functionality
-function filterWords() {
-    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-    const words = document.querySelectorAll('.word-item');
-
-    words.forEach(word => {
-        const wordText = word.textContent.toLowerCase();
-        word.style.display = wordText.includes(searchTerm) ? '' : 'none';
-    });
-}
-
-// Quiz functionality
-async function initializeQuiz() {
-    if (vocabularyData.length === 0) {
-        await loadWords(currentLanguage);
-    }
-    quizData = [...vocabularyData];
-    correctAnswers = 0;
-    document.getElementById('quiz-stats').textContent = `Correct Answers: ${correctAnswers}`;
-    generateQuizQuestion();
-}
-
-function generateQuizQuestion() {
-    if (quizData.length === 0) {
-        document.getElementById('quiz-question').textContent = "Quiz completed! Refresh to try again.";
-        document.getElementById('quiz-options').innerHTML = '';
+    if (!languagePairs[key]) {
+        alert('No dictionary available for this language pair.');
         return;
     }
 
-    const randomIndex = Math.floor(Math.random() * quizData.length);
-    const currentWord = quizData[randomIndex];
-    quizData.splice(randomIndex, 1);
+    try {
+        const response = await fetch(languagePairs[key]);
+        if (!response.ok) throw new Error('Failed to load dictionary');
 
-    let questionText, correctAnswer, options;
-
-    if (currentLanguage === 'latin') {
-        questionText = currentWord.english;
-        correctAnswer = currentWord.latin;
-        options = getRandomOptions(correctAnswer, [currentWord.latin]);
+        languageData[key] = await response.json();
+        displayWords(languageData[key]);
+    } catch (error) {
+        console.error('Error loading dictionary:', error);
+        wordList.innerHTML = '<p class="error">Failed to load dictionary. Please try again.</p>';
     }
-    else if (currentLanguage === 'greek') {
-        questionText = currentWord.greek;
-        correctAnswer = currentWord.english;
-        options = getRandomOptions(correctAnswer, [currentWord.english]);
-    }
-    else if (currentLanguage === 'akkadian') {
-        questionText = currentWord.akkadian;
-        correctAnswer = currentWord.assyrian;
-        options = getRandomOptions(correctAnswer, [currentWord.assyrian]);
-    }
-    else if (currentLanguage === 'aramaic') {
-        questionText = currentWord.russian;
-        correctAnswer = currentWord.assyrian;
-        options = getRandomOptions(correctAnswer, [currentWord.assyrian]);
-    }
-    else { // 'all' language - default to latin
-        questionText = currentWord.english;
-        correctAnswer = currentWord.latin;
-        options = getRandomOptions(correctAnswer, [currentWord.latin]);
-    }
-
-    displayQuizQuestion(questionText, options, correctAnswer);
 }
 
-function getRandomOptions(correctAnswer, existingOptions, count = 4) {
-    const options = [...existingOptions];
-    const allWords = vocabularyData.map(item => {
-        if (currentLanguage === 'latin') return item.latin;
-        if (currentLanguage === 'greek') return item.english;
-        if (currentLanguage === 'akkadian') return item.assyrian;
-        if (currentLanguage === 'aramaic') return item.assyrian;
-        return '';
-    }).filter(word => word && word !== correctAnswer);
+// Display words in the list
+function displayWords(data) {
+    wordList.innerHTML = '';
 
-    while (options.length < count && allWords.length > 0) {
-        const randomIndex = Math.floor(Math.random() * allWords.length);
-        const option = allWords[randomIndex];
-        if (!options.includes(option)) {
-            options.push(option);
+    if (!data || !data.words) {
+        wordList.innerHTML = '<p>No words found in this dictionary.</p>';
+        return;
+    }
+
+    const words = Object.entries(data.words);
+
+    if (words.length === 0) {
+        wordList.innerHTML = '<p>No words found in this dictionary.</p>';
+        return;
+    }
+
+    words.forEach(([englishWord, translations]) => {
+        const wordItem = document.createElement('div');
+        wordItem.className = 'word-item';
+
+        // Determine the translation based on selected languages
+        const fromLang = fromLanguageSelect.value;
+        const toLang = toLanguageSelect.value;
+
+        let translationText = '';
+        if (fromLang === 'assyrian' && toLang === 'akkadian') {
+            translationText = translations.akkadian || 'No translation';
+        } else if (fromLang === 'assyrian' && toLang === 'russian') {
+            translationText = translations.russian || 'No translation';
+        } else if (fromLang === 'english' && toLang === 'greek') {
+            translationText = translations.greek || 'No translation';
+        } else if (fromLang === 'latin' && toLang === 'english') {
+            translationText = translations.english || 'No translation';
         }
-        allWords.splice(randomIndex, 1);
-    }
 
-    return options.sort(() => Math.random() - 0.5);
-}
+        wordItem.innerHTML = `
+            <div class="word-term">${englishWord}</div>
+            <div class="word-translation">${translationText}</div>
+        `;
 
-function displayQuizQuestion(questionText, options, correctAnswer) {
-    const questionElement = document.getElementById('quiz-question');
-    const optionsElement = document.getElementById('quiz-options');
-
-    questionElement.textContent = questionText;
-    optionsElement.innerHTML = '';
-
-    options.forEach(option => {
-        const button = document.createElement('button');
-        button.textContent = option;
-        button.className = 'quiz-option';
-        button.onclick = () => checkAnswer(option, correctAnswer);
-        optionsElement.appendChild(button);
+        wordList.appendChild(wordItem);
     });
 }
 
-function checkAnswer(selected, correct) {
-    if (selected === correct) {
-        correctAnswers++;
-        document.getElementById('quiz-stats').textContent = `Correct Answers: ${correctAnswers}`;
+// Search words
+function searchWords() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const fromLang = fromLanguageSelect.value;
+    const toLang = toLanguageSelect.value;
+    const key = `${fromLang}-${toLang}`;
+
+    if (!languageData[key]) {
+        alert('Please load the dictionary first.');
+        return;
     }
-    generateQuizQuestion();
+
+    const words = Object.entries(languageData[key].words);
+    const filteredWords = words.filter(([englishWord]) =>
+        englishWord.toLowerCase().includes(searchTerm)
+    );
+
+    if (filteredWords.length === 0) {
+        wordList.innerHTML = '<p>No matching words found.</p>';
+        return;
+    }
+
+    wordList.innerHTML = '';
+    filteredWords.forEach(([englishWord, translations]) => {
+        const wordItem = document.createElement('div');
+        wordItem.className = 'word-item';
+
+        let translationText = '';
+        if (fromLang === 'assyrian' && toLang === 'akkadian') {
+            translationText = translations.akkadian || 'No translation';
+        } else if (fromLang === 'assyrian' && toLang === 'russian') {
+            translationText = translations.russian || 'No translation';
+        } else if (fromLang === 'english' && toLang === 'greek') {
+            translationText = translations.greek || 'No translation';
+        } else if (fromLang === 'latin' && toLang === 'english') {
+            translationText = translations.english || 'No translation';
+        }
+
+        wordItem.innerHTML = `
+            <div class="word-term">${englishWord}</div>
+            <div class="word-translation">${translationText}</div>
+        `;
+
+        wordList.appendChild(wordItem);
+    });
 }
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', () => {
-    loadWords('all'); // Load all words by default
+// Event listeners
+loadBtn.addEventListener('click', loadDictionary);
+searchBtn.addEventListener('click', searchWords);
 
-    // Add event listeners to language buttons
-    document.querySelectorAll('[data-language]').forEach(button => {
-        button.addEventListener('click', () => {
-            const lang = button.getAttribute('data-language');
-            loadWords(lang);
-        });
-    });
-
-    // Add quiz button event listener
-    document.getElementById('start-quiz').addEventListener('click', initializeQuiz);
+// Allow search on Enter key
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        searchWords();
+    }
 });
