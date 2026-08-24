@@ -23,7 +23,9 @@ async function startTest() {
     const selectedPair = languageSelect.value;
     try {
         const response = await fetch(`data/${selectedPair}.json`);
-        if (!response.ok) throw new Error('Failed to load data');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         currentData = await response.json();
         totalQuestions = currentData.length;
         score = 0;
@@ -31,8 +33,8 @@ async function startTest() {
         totalDisplay.textContent = totalQuestions;
         nextWord();
     } catch (error) {
-        console.error('Error:', error);
-        feedback.textContent = 'Failed to load vocabulary data.';
+        console.error('Error loading data:', error);
+        feedback.textContent = 'Failed to load vocabulary data. Check console for details.';
         feedback.style.color = '#f44336';
     }
 }
