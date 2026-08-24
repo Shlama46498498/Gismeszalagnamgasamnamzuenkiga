@@ -3,46 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ancient Languages Library</title>
+    <title>Lexicon of Antiquity</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Ancient Languages Library</h1>
-            <p class="subtitle">A Vintage Academia Collection</p>
+            <h1>Lexicon of Antiquity</h1>
+            <p class="subtitle">A Vintage Dark Academia Vocabulary Tester</p>
         </header>
 
         <div class="controls">
-            <div class="language-selector">
-                <label for="from-language">From:</label>
-                <select id="from-language">
-                    <option value="assyrian">Assyrian</option>
-                    <option value="english">English</option>
-                    <option value="latin">Latin</option>
-                </select>
-
-                <label for="to-language">To:</label>
-                <select id="to-language">
-                    <option value="akkadian">Akkadian</option>
-                    <option value="russian">Russian</option>
-                    <option value="greek">Greek</option>
-                    <option value="english">English</option>
-                </select>
-            </div>
-
-            <button id="load-btn">Load Dictionary</button>
+            <select id="language-pair">
+                <option value="data/latin_english.json">Latin ↔ English</option>
+                <option value="data/english_greek.json">English ↔ Ancient Greek</option>
+                <option value="data/assyrian_akkadian.json">Assyrian ↔ Akkadian</option>
+                <option value="data/assyrian_russian.json">Assyrian ↔ Russian</option>
+            </select>
+            <button id="test-btn">Begin Test</button>
         </div>
 
-        <div class="dictionary-container">
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search words...">
-                <button id="search-btn">Search</button>
+        <div class="test-area">
+            <div class="word-display">
+                <p id="word"></p>
             </div>
-
-            <div id="word-list" class="word-list"></div>
+            <div class="input-group">
+                <input type="text" id="user-input" placeholder="Your answer...">
+                <button id="submit-btn">Submit</button>
+            </div>
+            <div class="feedback">
+                <p id="feedback"></p>
+            </div>
+            <div class="stats">
+                <p>Score: <span id="score">0</span> / <span id="total">0</span></p>
+            </div>
         </div>
+
+        <footer>
+            <p>© 2023 Lexicon of Antiquity | A Dark Academia Study Aid</p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
