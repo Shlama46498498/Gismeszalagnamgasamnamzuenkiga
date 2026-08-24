@@ -1,204 +1,90 @@
-/* Base Styles */
-:root {
-    --primary-color: #2c1810;
-    --secondary-color: #5a3e2b;
-    --accent-color: #8b4513;
-    --text-color: #f5f5dc;
-    --bg-color: #f8f4e9;
-    --card-bg: #e8e0d0;
-    --border-color: #a0522d;
+// Load JSON data (updated paths)
+const languagePairs = {
+    "data/latin_english.json": "Latin ↔ English",
+    "data/english_greek.json": "English ↔ Ancient Greek",
+    "data/assyrian_akkadian.json": "Assyrian ↔ Akkadian",
+    "data/assyrian_russian.json": "Assyrian ↔ Russian"
+};
+
+// Global variables
+let currentData = [];
+let currentWord = {};
+let score = 0;
+let totalQuestions = 0;
+
+// DOM elements
+const languageSelect = document.getElementById('language-pair');
+const testBtn = document.getElementById('test-btn');
+const wordDisplay = document.getElementById('word');
+const userInput = document.getElementById('user-input');
+const submitBtn = document.getElementById('submit-btn');
+const feedback = document.getElementById('feedback');
+const scoreDisplay = document.getElementById('score');
+const totalDisplay = document.getElementById('total');
+
+// Event listeners
+testBtn.addEventListener('click', startTest);
+submitBtn.addEventListener('click', checkAnswer);
+
+// Load JSON data and start test
+async function startTest() {
+    const selectedFile = languageSelect.value;
+    try {
+        const response = await fetch(selectedFile);
+        currentData = await response.json();
+        totalQuestions = currentData.length;
+        score = 0;
+        scoreDisplay.textContent = score;
+        totalDisplay.textContent = totalQuestions;
+        nextWord();
+    } catch (error) {
+        console.error('Error loading data:', error);
+        feedback.textContent = 'Failed to load vocabulary data.';
+    }
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Lora', serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    padding: 20px;
-}
-
-/* Container */
-.container {
-    max-width: 1000px;
-    margin: 0 auto;
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    border: 1px solid var(--border-color);
-}
-
-/* Header */
-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--border-color);
-}
-
-h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.subtitle {
-    font-style: italic;
-    color: var(--secondary-color);
-    font-size: 1.2rem;
-}
-
-/* Controls */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: rgba(232, 224, 208, 0.5);
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-}
-
-.language-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-}
-
-.language-selector label {
-    font-weight: 600;
-    color: var(--primary-color);
-}
-
-select {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: white;
-    font-family: 'Lora', serif;
-    font-size: 1rem;
-    min-width: 150px;
-}
-
-#load-btn {
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 4px;
-    font-family: 'Lora', serif;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    align-self: flex-start;
-}
-
-#load-btn:hover {
-    background-color: #a0522d;
-}
-
-/* Search Box */
-.search-box {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-#search-input {
-    flex: 1;
-    padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-family: 'Lora', serif;
-    font-size: 1rem;
-}
-
-#search-btn {
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-family: 'Lora', serif;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#search-btn:hover {
-    background-color: #3a2a1a;
-}
-
-/* Word List */
-.dictionary-container {
-    margin-top: 20px;
-}
-
-.word-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.word-item {
-    background-color: white;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.word-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.word-term {
-    font-weight: 600;
-    color: var(--primary-color);
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-    font-family: 'Playfair Display', serif;
-}
-
-.word-translation {
-    color: var(--secondary-color);
-    font-style: italic;
-}
-
-/* Error Messages */
-.error {
-    color: #d32f2f;
-    text-align: center;
-    padding: 20px;
-    font-weight: 600;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
+// Display next word
+function nextWord() {
+    if (currentData.length === 0) {
+        feedback.textContent = 'Test complete! Refresh to try again.';
+        return;
     }
 
-    .language-selector {
-        flex-direction: column;
-        align-items: stretch;
+    const randomIndex = Math.floor(Math.random() * currentData.length);
+    currentWord = currentData[randomIndex];
+    currentData.splice(randomIndex, 1); // Remove to avoid repetition
+
+    // Display the word in the target language
+    const selectedFile = languageSelect.value;
+    const [lang1, lang2] = languagePairs[selectedFile].split(' ↔ ');
+
+    // Alternate between showing lang1 or lang2
+    const showLang1 = Math.random() > 0.5;
+    wordDisplay.textContent = showLang1 ? currentWord[lang1.toLowerCase().replace(' ', '_')] : currentWord[lang2.toLowerCase().replace(' ', '_')];
+    userInput.value = '';
+    userInput.focus();
+    feedback.textContent = '';
+}
+
+// Check user's answer
+function checkAnswer() {
+    const userAnswer = userInput.value.trim().toLowerCase();
+    const selectedFile = languageSelect.value;
+    const [lang1, lang2] = languagePairs[selectedFile].split(' ↔ ');
+
+    // Determine the correct answer based on what was shown
+    const shownLang = wordDisplay.textContent === currentWord[lang1.toLowerCase().replace(' ', '_')] ? lang1 : lang2;
+    const correctAnswer = shownLang === lang1 ? currentWord[lang2.toLowerCase().replace(' ', '_')] : currentWord[lang1.toLowerCase().replace(' ', '_')];
+
+    if (userAnswer === correctAnswer.toLowerCase()) {
+        feedback.textContent = 'Correct! Well done, scholar.';
+        feedback.style.color = '#4CAF50';
+        score++;
+    } else {
+        feedback.textContent = `Incorrect. The correct answer was: ${correctAnswer}`;
+        feedback.style.color = '#f44336';
     }
 
-    select {
-        width: 100%;
-    }
-
-    #load-btn {
-        align-self: stretch;
-    }
+    scoreDisplay.textContent = score;
+    nextWord();
 }
