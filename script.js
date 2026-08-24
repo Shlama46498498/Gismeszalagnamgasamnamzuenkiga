@@ -1,11 +1,3 @@
-// Load JSON data (updated paths)
-const languagePairs = {
-    "data/latin_english.json": "Latin ↔ English",
-    "data/english_greek.json": "English ↔ Ancient Greek",
-    "data/assyrian_akkadian.json": "Assyrian ↔ Akkadian",
-    "data/assyrian_russian.json": "Assyrian ↔ Russian"
-};
-
 // Global variables
 let currentData = [];
 let currentWord = {};
@@ -28,9 +20,10 @@ submitBtn.addEventListener('click', checkAnswer);
 
 // Load JSON data and start test
 async function startTest() {
-    const selectedFile = languageSelect.value;
+    const selectedPair = languageSelect.value;
     try {
-        const response = await fetch(selectedFile);
+        const response = await fetch(`data/${selectedPair}.json`);
+        if (!response.ok) throw new Error('Failed to load data');
         currentData = await response.json();
         totalQuestions = currentData.length;
         score = 0;
@@ -38,8 +31,9 @@ async function startTest() {
         totalDisplay.textContent = totalQuestions;
         nextWord();
     } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('Error:', error);
         feedback.textContent = 'Failed to load vocabulary data.';
+        feedback.style.color = '#f44336';
     }
 }
 
@@ -52,15 +46,15 @@ function nextWord() {
 
     const randomIndex = Math.floor(Math.random() * currentData.length);
     currentWord = currentData[randomIndex];
-    currentData.splice(randomIndex, 1); // Remove to avoid repetition
+    currentData.splice(randomIndex, 1);
 
     // Display the word in the target language
-    const selectedFile = languageSelect.value;
-    const [lang1, lang2] = languagePairs[selectedFile].split(' ↔ ');
+    const selectedPair = languageSelect.value;
+    const [lang1, lang2] = selectedPair.split('_');
 
     // Alternate between showing lang1 or lang2
     const showLang1 = Math.random() > 0.5;
-    wordDisplay.textContent = showLang1 ? currentWord[lang1.toLowerCase().replace(' ', '_')] : currentWord[lang2.toLowerCase().replace(' ', '_')];
+    wordDisplay.textContent = showLang1 ? currentWord[lang1] : currentWord[lang2];
     userInput.value = '';
     userInput.focus();
     feedback.textContent = '';
@@ -69,12 +63,12 @@ function nextWord() {
 // Check user's answer
 function checkAnswer() {
     const userAnswer = userInput.value.trim().toLowerCase();
-    const selectedFile = languageSelect.value;
-    const [lang1, lang2] = languagePairs[selectedFile].split(' ↔ ');
+    const selectedPair = languageSelect.value;
+    const [lang1, lang2] = selectedPair.split('_');
 
-    // Determine the correct answer based on what was shown
-    const shownLang = wordDisplay.textContent === currentWord[lang1.toLowerCase().replace(' ', '_')] ? lang1 : lang2;
-    const correctAnswer = shownLang === lang1 ? currentWord[lang2.toLowerCase().replace(' ', '_')] : currentWord[lang1.toLowerCase().replace(' ', '_')];
+    // Determine the correct answer
+    const shownLang = wordDisplay.textContent === currentWord[lang1] ? lang1 : lang2;
+    const correctAnswer = shownLang === lang1 ? currentWord[lang2] : currentWord[lang1];
 
     if (userAnswer === correctAnswer.toLowerCase()) {
         feedback.textContent = 'Correct! Well done, scholar.';
