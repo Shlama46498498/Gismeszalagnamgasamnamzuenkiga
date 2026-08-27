@@ -3,48 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexicon of Antiquity</title>
+    <title>Antiquarium Vocabulary Quiz</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
+    <div class="parchment-container">
         <header>
-            <h1>Lexicon of Antiquity</h1>
-            <p class="subtitle">A Vintage Dark Academia Vocabulary Tester</p>
+            <h1>Antiquarium</h1>
+            <p class="subtitle">A Dark Academia Lexicon Scholar</p>
+            <div class="divider"></div>
         </header>
 
-        <div class="controls">
-            <select id="language-pair">
-                <option value="latin_english">Latin ↔ English</option>
-                <option value="english_greek">English ↔ Ancient Greek</option>
-                <option value="assyrian_akkadian">Assyrian ↔ Akkadian</option>
-                <option value="assyrian_russian">Assyrian ↔ Russian</option>
-            </select>
-            <button id="test-btn">Begin Test</button>
-        </div>
+        <main>
+            <!-- Setup Screen -->
+            <section id="setup-screen" class="view-section active">
+                <p class="instruction-text">Select a lexicon repository to begin your examination:</p>
+                <div class="dataset-grid">
+                    <button class="btn-dataset" onclick="selectDataset('assyrian_akkadian')">
+                        <span class="lang-title">Assyrian & Akkadian</span>
+                        <span class="lang-desc">Cuneiform semantic comparisons</span>
+                    </button>
+                    <button class="btn-dataset" onclick="selectDataset('assyrian_russian')">
+                        <span class="lang-title">Assyrian to Russian</span>
+                        <span class="lang-desc">Eastern neo-Aramaic translation</span>
+                    </button>
+                    <button class="btn-dataset" onclick="selectDataset('english_greek')">
+                        <span class="lang-title">English to Ancient Greek</span>
+                        <span class="lang-desc">Hellenic philosophical vocabulary</span>
+                    </button>
+                    <button class="btn-dataset" onclick="selectDataset('latin_english')">
+                        <span class="lang-title">Latin to English</span>
+                        <span class="lang-desc">Classical Imperium dialect</span>
+                    </button>
+                </div>
+            </section>
 
-        <div class="test-area">
-            <div class="word-display">
-                <p id="word"></p>
-            </div>
-            <div class="input-group">
-                <input type="text" id="user-input" placeholder="Your answer...">
-                <button id="submit-btn">Submit</button>
-            </div>
-            <div class="feedback">
-                <p id="feedback"></p>
-            </div>
-            <div class="stats">
-                <p>Score: <span id="score">0</span> / <span id="total">0</span></p>
-            </div>
-        </div>
+            <!-- Quiz Screen -->
+            <section id="quiz-screen" class="view-section">
+                <div class="quiz-meta">
+                    <span id="quiz-title" class="deck-title">Dataset</span>
+                    <span id="quiz-progress" class="progress-counter">Question 0/0</span>
+                </div>
+                
+                <div class="card">
+                    <p class="card-prompt">Translate the term:</p>
+                    <h2 id="question-word" class="word-display">Word</h2>
+                </div>
+
+                <div id="options-container" class="options-grid">
+                    <!-- Dynamic choices inserted here -->
+                </div>
+
+                <div id="feedback-panel" class="feedback-panel hidden">
+                    <p id="feedback-message">Result text</p>
+                    <button id="next-btn" class="btn-action" onclick="nextQuestion()">Advance Examination &rarr;</button>
+                </div>
+            </section>
+
+            <!-- Results Screen -->
+            <section id="results-screen" class="view-section">
+                <h2 class="results-heading">Examination Terminated</h2>
+                <div class="score-sphere">
+                    <span id="final-score">0/0</span>
+                </div>
+                <p id="evaluation-text" class="evaluation-text">Your performance baseline.</p>
+                <button class="btn-action" onclick="resetQuiz()">Return to Archives</button>
+            </section>
+        </main>
 
         <footer>
-            <p>© 2023 Lexicon of Antiquity | A Dark Academia Study Aid</p>
+            <div class="divider"></div>
+            <p class="footer-note">Ex Umbra In Solem &bull; Littera Scripta Manet</p>
         </footer>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
