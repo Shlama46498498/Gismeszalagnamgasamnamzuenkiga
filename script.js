@@ -16,12 +16,13 @@ const schemaMappings = {
 // Загрузка файла с учетом особенностей GitHub Pages
 async function selectDataset(datasetId) {
     currentDatasetName = datasetId;
-    
-    const basePath = window.location.pathname.endsWith('/') 
-        ? window.location.pathname 
+   
+    const basePath = window.location.pathname.endsWith('/')
+        ? window.location.pathname
         : window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-        
-    const finalUrl = `${window.location.origin}${basePath}data/${datasetId}.json`;
+       
+    // Добавляем случайный параметр ?v=, чтобы принудительно обойти кэш GitHub Pages
+    const finalUrl = `${window.location.origin}${basePath}data/${datasetId}.json?v=${Date.now()}`;
 
     try {
         const response = await fetch(finalUrl);
@@ -36,24 +37,30 @@ async function selectDataset(datasetId) {
     }
 }
 
-// Парсинг сложного JSON объекта в плоский массив для теста
+// УНИВЕРСАЛЬНЫЙ ПАРСЕР: Читает любой JSON (и старый, и новый)
 function prepareQuizPool(rawData) {
-    const mapping = schemaMappings[currentDatasetName];
+    const mapping = schemaMappings[currentDatasetName] || {};
     quizData = [];
 
-    // Проверяем, есть ли корневой объект "words"
     if (rawData && rawData.words) {
         const wordsObject = rawData.words;
-        
-        // Проходим по каждому ключу (например, "to bring along")
+       
         for (const [key, value] of Object.entries(wordsObject)) {
-            // value — это объект типа { "akkadian": "abaku" }
-            const definition = value[mapping.definitionKey];
-            
+            let definition = "";
+
+            // 1. Если внутри лежит объект (например: { "translation": "текст" })
+            if (typeof value === 'object' && value !== null) {
+                definition = value[mapping.definitionKey] || value["translation"] || value["assyrian"];
+            } 
+            // 2. Если внутри лежит просто строка (как в твоем самом первом коде)
+            else if (typeof value === 'string') {
+                definition = value;
+            }
+           
             if (key && definition) {
                 quizData.push({
-                    word: key, // Само слово берем из названия ключа
-                    definition: definition // Перевод берем из внутреннего поля
+                    word: key, 
+                    definition: definition 
                 });
             }
         }
@@ -66,7 +73,6 @@ function prepareQuizPool(rawData) {
 
     shuffleArray(quizData);
    
-    // Ограничиваем количество вопросов до 10 штук за раунд
     quizData = quizData.slice(0, Math.min(TOTAL_QUESTIONS_PER_RUN, quizData.length));
     currentQuestionIndex = 0;
     score = 0;
@@ -78,14 +84,13 @@ function prepareQuizPool(rawData) {
 // Вывод вопроса на экран
 function renderQuestion() {
     document.getElementById("feedback-panel").classList.add("hidden");
-    const mapping = schemaMappings[currentDatasetName];
+    const mapping = schemaMappings[currentDatasetName] || { displayTitle: "Quiz" };
     const currentQuestion = quizData[currentQuestionIndex];
    
     document.getElementById("quiz-title").textContent = mapping.displayTitle;
     document.getElementById("quiz-progress").textContent = `Examination ${currentQuestionIndex + 1} / ${quizData.length}`;
     document.getElementById("question-word").textContent = currentQuestion.word;
 
-    // Собираем варианты ответов (1 правильный + до 3 неправильных)
     const choices = [currentQuestion.definition];
     const alternatePool = quizData.map(item => item.definition);
     const dynamicDistractors = [...new Set(alternatePool)].filter(def => def !== currentQuestion.definition);
@@ -95,7 +100,6 @@ function renderQuestion() {
         choices.push(dynamicDistractors[i]);
     }
 
-    // Если слов в базе мало, добиваем заглушками
     while (choices.length < 4) {
         choices.push(`Alternative Translation ${choices.length}`);
     }
