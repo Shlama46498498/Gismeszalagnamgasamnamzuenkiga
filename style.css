@@ -1,90 +1,273 @@
-// Load JSON data (updated paths)
-const languagePairs = {
-    "data/latin_english.json": "Latin ↔ English",
-    "data/english_greek.json": "English ↔ Ancient Greek",
-    "data/assyrian_akkadian.json": "Assyrian ↔ Akkadian",
-    "data/assyrian_russian.json": "Assyrian ↔ Russian"
-};
+/* Dark Academia Resonance Design System */
+@import url('https://shlama46498498.github.io/Gismeszalagnamgasamnamzuenkiga/');
 
-// Global variables
-let currentData = [];
-let currentWord = {};
-let score = 0;
-let totalQuestions = 0;
-
-// DOM elements
-const languageSelect = document.getElementById('language-pair');
-const testBtn = document.getElementById('test-btn');
-const wordDisplay = document.getElementById('word');
-const userInput = document.getElementById('user-input');
-const submitBtn = document.getElementById('submit-btn');
-const feedback = document.getElementById('feedback');
-const scoreDisplay = document.getElementById('score');
-const totalDisplay = document.getElementById('total');
-
-// Event listeners
-testBtn.addEventListener('click', startTest);
-submitBtn.addEventListener('click', checkAnswer);
-
-// Load JSON data and start test
-async function startTest() {
-    const selectedFile = languageSelect.value;
-    try {
-        const response = await fetch(selectedFile);
-        currentData = await response.json();
-        totalQuestions = currentData.length;
-        score = 0;
-        scoreDisplay.textContent = score;
-        totalDisplay.textContent = totalQuestions;
-        nextWord();
-    } catch (error) {
-        console.error('Error loading data:', error);
-        feedback.textContent = 'Failed to load vocabulary data.';
-    }
+:root {
+    --bg-dark: #12100e;
+    --parchment: #f2e6d0;
+    --ink-dark: #2b231a;
+    --ink-muted: #5c4d3c;
+    --gold-accent: #a37c3f;
+    --gold-dim: #785a2c;
+    --crimson-correct: #4a2825;
+    --crimson-border: #803029;
 }
 
-// Display next word
-function nextWord() {
-    if (currentData.length === 0) {
-        feedback.textContent = 'Test complete! Refresh to try again.';
-        return;
-    }
-
-    const randomIndex = Math.floor(Math.random() * currentData.length);
-    currentWord = currentData[randomIndex];
-    currentData.splice(randomIndex, 1); // Remove to avoid repetition
-
-    // Display the word in the target language
-    const selectedFile = languageSelect.value;
-    const [lang1, lang2] = languagePairs[selectedFile].split(' ↔ ');
-
-    // Alternate between showing lang1 or lang2
-    const showLang1 = Math.random() > 0.5;
-    wordDisplay.textContent = showLang1 ? currentWord[lang1.toLowerCase().replace(' ', '_')] : currentWord[lang2.toLowerCase().replace(' ', '_')];
-    userInput.value = '';
-    userInput.focus();
-    feedback.textContent = '';
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-// Check user's answer
-function checkAnswer() {
-    const userAnswer = userInput.value.trim().toLowerCase();
-    const selectedFile = languageSelect.value;
-    const [lang1, lang2] = languagePairs[selectedFile].split(' ↔ ');
-
-    // Determine the correct answer based on what was shown
-    const shownLang = wordDisplay.textContent === currentWord[lang1.toLowerCase().replace(' ', '_')] ? lang1 : lang2;
-    const correctAnswer = shownLang === lang1 ? currentWord[lang2.toLowerCase().replace(' ', '_')] : currentWord[lang1.toLowerCase().replace(' ', '_')];
-
-    if (userAnswer === correctAnswer.toLowerCase()) {
-        feedback.textContent = 'Correct! Well done, scholar.';
-        feedback.style.color = '#4CAF50';
-        score++;
-    } else {
-        feedback.textContent = `Incorrect. The correct answer was: ${correctAnswer}`;
-        feedback.style.color = '#f44336';
-    }
-
-    scoreDisplay.textContent = score;
-    nextWord();
+body {
+    background-color: var(--bg-dark);
+    font-family: 'EB Garamond', serif;
+    color: var(--ink-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
 }
+
+/* Folio styling simulating old heavy paper */
+.parchment-container {
+    background-color: var(--parchment);
+    background-image: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.04)),
+                      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://w3.org id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+    max-width: 700px;
+    width: 100%;
+    border: 1px solid var(--gold-dim);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(43, 35, 26, 0.15);
+    padding: 40px;
+    border-radius: 2px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    color: var(--ink-dark);
+    text-transform: uppercase;
+}
+
+.subtitle {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    margin-top: 5px;
+}
+
+.divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-accent), transparent);
+    margin: 20px auto;
+    width: 80%;
+    position: relative;
+}
+
+.divider::after {
+    content: "❖";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--parchment);
+    padding: 0 10px;
+    color: var(--gold-accent);
+    font-size: 0.8rem;
+}
+
+.view-section {
+    display: none;
+}
+
+.view-section.active {
+    display: block;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.instruction-text {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 25px;
+    color: var(--ink-muted);
+    font-size: 1.2rem;
+}
+
+.dataset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .dataset-grid { grid-template-columns: 1fr; }
+}
+
+.btn-dataset {
+    background: rgba(43, 35, 26, 0.02);
+    border: 1px solid var(--ink-muted);
+    padding: 20px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.btn-dataset:hover {
+    background: rgba(163, 124, 63, 0.08);
+    border-color: var(--gold-accent);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+
+.lang-title {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink-dark);
+}
+
+.lang-desc {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(43, 35, 26, 0.1);
+    padding-bottom: 5px;
+}
+
+.card {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card-prompt {
+    font-style: italic;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+}
+
+.word-display {
+    font-family: 'Cinzel', serif;
+    font-size: 2.6rem;
+    color: var(--ink-dark);
+    letter-spacing: 1px;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.option-btn {
+    background: transparent;
+    border: 1px solid var(--ink-muted);
+    padding: 14px 20px;
+    font-family: 'EB Garamond', serif;
+    font-size: 1.2rem;
+    text-align: left;
+    cursor: pointer;
+    color: var(--ink-dark);
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.option-btn:hover:not([disabled]) {
+    background: rgba(163, 124, 63, 0.06);
+    border-color: var(--gold-accent);
+    padding-left: 25px;
+}
+
+.option-btn.correct {
+    background-color: rgba(92, 117, 92, 0.15) !important;
+    border-color: #3b523b !important;
+    color: #243324 !important;
+    font-weight: bold;
+}
+
+.option-btn.wrong {
+    background-color: rgba(128, 48, 41, 0.08) !important;
+    border-color: var(--crimson-border) !important;
+    color: var(--crimson-correct) !important;
+    text-decoration: line-through;
+}
+
+.feedback-panel {
+    border-top: 1px dashed var(--gold-accent);
+    padding-top: 20px;
+    text-align: center;
+}
+
+#feedback-message {
+    font-size: 1.3rem;
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+.btn-action {
+    background: var(--ink-dark);
+    color: var(--parchment);
+    border: 1px solid var(--gold-accent);
+    font-family: 'Cinzel', serif;
+    padding: 12px 30px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.btn-action:hover {
+    background: var(--gold-dim);
+}
+
+.hidden { display: none !important; }
+
+.score-sphere {
+    width: 110px;
+    height: 110px;
+    border: 2px double var(--gold-accent);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 25px auto;
+}
+
+#final-score {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+}
+
+.evaluation-text {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 30px;
+    font-size: 1.2rem;
+}
+
+footer { margin-top: 40px; text-align: center; }
+.footer-note { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--ink-muted); letter-spacing: 2px; }
+
