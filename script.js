@@ -5,65 +5,87 @@ let score = 0;
 let currentDatasetName = "";
 const TOTAL_QUESTIONS_PER_RUN = 10;
 
-// Config schema adjustments to digest uneven variables across data catalogs seamlessly
+// Конфигурация под твою точную структуру JSON
 const schemaMappings = {
-    "assyrian_akkadian": { wordKey: "assyrian", definitionKey: "akkadian", displayTitle: "Assyrian - Akkadian Archive" },
-    "assyrian_russian": { wordKey: "word", definitionKey: "translation", displayTitle: "Assyrian - Russian Codex" },
-    "english_greek": { wordKey: "english", definitionKey: "greek", displayTitle: "English - Greek Compendium" },
-    "latin_english": { wordKey: "latin", definitionKey: "english", displayTitle: "Latin - English Folio" }
+    "assyrian_akkadian": { wordKey: "key", definitionKey: "akkadian", displayTitle: "Assyrian - Akkadian Archive" },
+    "assyrian_russian": { wordKey: "key", definitionKey: "translation", displayTitle: "Assyrian - Russian Codex" },
+    "english_greek": { wordKey: "key", definitionKey: "greek", displayTitle: "English - Greek Compendium" },
+    "latin_english": { wordKey: "key", definitionKey: "english", displayTitle: "Latin - English Folio" }
 };
 
-// Request designated data package via relative directory access
+// Загрузка файла с учетом особенностей GitHub Pages
 async function selectDataset(datasetId) {
     currentDatasetName = datasetId;
+    
+    const basePath = window.location.pathname.endsWith('/') 
+        ? window.location.pathname 
+        : window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        
+    const finalUrl = `${window.location.origin}${basePath}data/${datasetId}.json`;
+
     try {
-        const response = await fetch(`data/${datasetId}.json`);
-        if (!response.ok) throw new Error(`HTTP Error: Failed to secure ${datasetId}.json`);
+        const response = await fetch(finalUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to reach file.`);
+        }
         const rawData = await response.json();
         prepareQuizPool(rawData);
     } catch (error) {
         console.error("Archive Retrieval Error:", error);
-        alert("Unable to safely access file structure within local data/ folder.");
+        alert(`ОШИБКА ЗАГРУЗКИ!\n\nСкрипт пытался найти файл по адресу:\n${finalUrl}\n\nЧто проверить:\n1. Папка на GitHub называется именно "data" (маленькими буквами).\n2. Файл называется именно "${datasetId}.json" (маленькими буквами).`);
     }
 }
 
-// Convert schema variances cleanly and extract a randomized subset 
-function prepareQuizPool(rawArray) {
+// Парсинг сложного JSON объекта в плоский массив для теста
+function prepareQuizPool(rawData) {
     const mapping = schemaMappings[currentDatasetName];
-    
-    // Abstract schema variants cleanly out of database structure arrays
-    quizData = rawArray.map(item => ({
-        word: item[mapping.wordKey] || "Unknown",
-        definition: item[mapping.definitionKey] || "Missing"
-    })).filter(item => item.word !== "Unknown" && item.definition !== "Missing");
+    quizData = [];
+
+    // Проверяем, есть ли корневой объект "words"
+    if (rawData && rawData.words) {
+        const wordsObject = rawData.words;
+        
+        // Проходим по каждому ключу (например, "to bring along")
+        for (const [key, value] of Object.entries(wordsObject)) {
+            // value — это объект типа { "akkadian": "abaku" }
+            const definition = value[mapping.definitionKey];
+            
+            if (key && definition) {
+                quizData.push({
+                    word: key, // Само слово берем из названия ключа
+                    definition: definition // Перевод берем из внутреннего поля
+                });
+            }
+        }
+    }
 
     if (quizData.length < 4) {
-        alert("The collection pool contains insufficient translation components.");
+        alert("The collection pool contains insufficient translation components. Check JSON format.");
         return;
     }
 
     shuffleArray(quizData);
-    
-    // Sample configuration settings bounds
+   
+    // Ограничиваем количество вопросов до 10 штук за раунд
     quizData = quizData.slice(0, Math.min(TOTAL_QUESTIONS_PER_RUN, quizData.length));
     currentQuestionIndex = 0;
     score = 0;
-    
+   
     switchView("quiz-screen");
     renderQuestion();
 }
 
-// Layout current evaluation query
+// Вывод вопроса на экран
 function renderQuestion() {
     document.getElementById("feedback-panel").classList.add("hidden");
     const mapping = schemaMappings[currentDatasetName];
     const currentQuestion = quizData[currentQuestionIndex];
-    
+   
     document.getElementById("quiz-title").textContent = mapping.displayTitle;
     document.getElementById("quiz-progress").textContent = `Examination ${currentQuestionIndex + 1} / ${quizData.length}`;
     document.getElementById("question-word").textContent = currentQuestion.word;
 
-    // Collect choices and shuffle alternative elements to isolate dynamic entries
+    // Собираем варианты ответов (1 правильный + до 3 неправильных)
     const choices = [currentQuestion.definition];
     const alternatePool = quizData.map(item => item.definition);
     const dynamicDistractors = [...new Set(alternatePool)].filter(def => def !== currentQuestion.definition);
@@ -73,9 +95,9 @@ function renderQuestion() {
         choices.push(dynamicDistractors[i]);
     }
 
-    // Safety fallback buffer padding loop if pool runs lean
+    // Если слов в базе мало, добиваем заглушками
     while (choices.length < 4) {
-        choices.push(`Alternative Translation Variant ${choices.length}`);
+        choices.push(`Alternative Translation ${choices.length}`);
     }
 
     shuffleArray(choices);
@@ -92,11 +114,10 @@ function renderQuestion() {
     });
 }
 
-// Handle choices selection validation logic
+// Проверка клика
 function evaluateAnswer(selectedButton, chosenValue, correctValue) {
     const buttons = document.getElementById("options-container").getElementsByClassName("option-btn");
 
-    // Lock dynamic actions loop execution triggers
     for (let btn of buttons) {
         btn.disabled = true;
         if (btn.textContent === correctValue) {
@@ -119,7 +140,6 @@ function evaluateAnswer(selectedButton, chosenValue, correctValue) {
     document.getElementById("feedback-panel").classList.remove("hidden");
 }
 
-// Advance loop execution or transition view layouts
 function nextQuestion() {
     currentQuestionIndex++;
     if (currentQuestionIndex < quizData.length) {
@@ -129,7 +149,6 @@ function nextQuestion() {
     }
 }
 
-// Deliver dynamic contextual end reviews
 function displayFinalResults() {
     switchView("results-screen");
     document.getElementById("final-score").textContent = `${score} / ${quizData.length}`;
@@ -154,7 +173,6 @@ function switchView(targetScreenId) {
     document.getElementById(targetScreenId).classList.add("active");
 }
 
-// Knuth-Fisher-Yates implementation formula block
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
